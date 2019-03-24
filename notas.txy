@@ -1,0 +1,29 @@
+Usar iptables para limitar el número de paquetes SYN, que son aceptados para cada dirección IP en un intervalo de tiempo. Para ello usamos el patch recent de iptables.
+
+iptables -A INPUT -p tcp -m state --state NEW -m recent --set --name sattack
+iptables -A INPUT -p tcp -m state --state NEW -m recent --rcheck --name sattack --seconds 60 --hitcount 20 -j DROP
+
+La primera regla añade la dirección de origen de los paquetes SYN a una tabla llamada sattack, la segunda regla comprueba si en los últimos 60 segundos ha habido más de 20 paquetes SYN, desde la dirección de origen del paquete, de ser así el paquete es descartado.
+
+En caso de que se esté usando IP Spoofing junto a SYN Flood, la única opción restante es intenta detectar alguna particularidad de la cabecera, que permita diferenciar los paquetes del atacante del resto, por ejemplo si MSS no tiene un valor correcto
+iptables -t mangle -I PREROUTING -p tcp -m tcp --dport 80 -m state --state NEW -m tcpmss ! --mss 536:65535 -j DROP
+
+Algunos tipos de scan, usan paquetes construidos de manera que son fáciles de diferenciar del tráfico legítimo, en ese caso es posible descartarlos directamente:
+
+# XMAS Scan
+iptables -A INPUT -p tcp --tcp-flags ALL FIN,URG,PSH -j DROP
+
+# NULL Scan
+iptables -A INPUT -p tcp --tcp-flags ALL NONE -j DROP
+
+# SYN/RST Scan
+iptables -A INPUT -p tcp --tcp-flags SYN,RST SYN,RST -j DROP
+
+# SYN/FIN Scan
+iptables -A INPUT -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
+
+Lo que hace es contar el número de paquetes SYN (inicio de conexión TCP) para cada dirección IP en los últimos 10 segundos. Si llega a 30 descarta ese paquete por lo que no se establecerá la conexión (el TCP volverá a intentar varias veces, cuando baje del límite podrá establecerse).
+
+#Evitando Layer7 DoS limitando a 80 la máxima cantidad de conexiones
+iptables -A INPUT -p tcp --dport 80 -m hashlimit --hashlimit-upto 50/min --hashlimit-burst 80 --hashlimit-mode srcip --hashlimit-name http -j ACCEPT
+$IPT -A INPUT -p tcp --dport 80 -j DROP
