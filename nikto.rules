@@ -1,0 +1,13 @@
+alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS \
+(\
+msg:"ET SCAN Nikto Web App Scan in Progress"; \
+flow:to_server; \
+content:"(Nikto"; \
+http_header; \
+threshold: type both, count 5, seconds 60, track by_src; \
+\
+reference:url,www.cirt.net/code/nikto.shtml; \
+reference:url,doc.emergingthreats.net/2002677; \
+classtype:web-application-attack; sid:2002677; rev:13;\
+)
+ 
