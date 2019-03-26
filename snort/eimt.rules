@@ -1,1 +1,11 @@
-alert tcp $EXTERNAL_NET any -> $HOME_NET 139 (msg:”UOC – Exploit Samba ‘username map script’ Command Execution”;content:”|2f 3d 60 6e 6f 68 75 70 20|”; classtype:string-detect; sid:99999903; rev:1;reference:cve2007-2447;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 139 (msg:”Exploit Samba ‘username map script’ Command Execution”;content:”|2f 3d 60 6e 6f 68 75 70 20|”; classtype:string-detect; sid:99999903; rev:1;reference:cve2007-2447;)
+
+alert tcp $EXTERNAL_NET any -> $HOME _NET 6667 (msg:”Exploit UnrealIRCD Backdoor Command Execution”; content:”|41 42 3b 73 68|”; classtype:string-detect; sid:99999906; rev:1; reference:cve,2010-2075;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET v21 (msg:"access to FTP"; content:"site cprf";)
+
+alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"Metasploit Meterpreter"; flow:to_server,established; content:"RECV"; http_client_body; depth:4; fast_pattern; isdataat:!0,relative; urilen:23<>24,norm; content:"POST"; pcre:"/^\/[a-z0-9]{4,5}_[a-z0-9]{16}\/$/Ui"; classtype:trojan-activity; reference:url,blog.didierstevens.com/2015/05/11/detecting-network-traffic-from-metasploits-meterpreter-reverse-http-module/; sid:1618008; rev:1;)
+
+alert tcp $EXTERNAL_NET any ->$HTTP_SERVERS $HTTP_PORTS (msg:"HTTP TCP"; sid:255; rev:13;)
+
+alert icmp any any -> $HOME_NET any (msg: "NMAP ping Scan"; dsize:0; sid:10000004; rev: 1; )
