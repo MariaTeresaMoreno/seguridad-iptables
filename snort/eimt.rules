@@ -8,4 +8,18 @@ alert tcp $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"Metasploit Meterprete
 
 alert tcp $EXTERNAL_NET any ->$HTTP_SERVERS $HTTP_PORTS (msg:"HTTP TCP"; sid:255; rev:13;)
 
-alert icmp any any -> $HOME_NET any (msg: "NMAP ping Scan"; dsize:0; sid:10000004; rev: 1; )
+alert icmp any any -> $HOME_NET any (msg: "NMAP ping Scan"; dsize:0; sid:10000004; rev: 1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg: "NMAP TCP Scan"; sid:10000005; rev:2;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"Nmap XMAS Tree Scan"; flags:FPU; sid:1000006; rev:1;)
+
+alert tcp a$EXTERNAL_NET any -> $HOME_NET any (msg:"Nmap FIN Scan"; flags:F; sid:1000008; rev:1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"Nmap NULL Scan"; flags:0; sid:1000009; rev:1;)
+
+alert udp $EXTERNAL_NET any -> $HOME_NET any ( msg:"Nmap UDP Scan"; sid:1000010; rev:1;)
+
+alert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS
+(msg:"WEB-MISC Apache Chunked-Encoding worm attempt";
+flow:to_server,established; content:"CCCCCCC|3A|AAAAAAAAAAAAAAAAAAA"; nocase; reference:cve,2002-0392...; classtype:web-application-attack; sid:1809; rev:9;)

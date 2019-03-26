@@ -39,6 +39,7 @@ iptables -A INPUT -p tcp --tcp-flags ALL SYN,RST,ACK,FIN,URG -j DROP
 #Bloqueo fuerza bruta ssh
 iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW -m recent --set
 iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW -m recent --update --seconds 60 --hitcount 10 -j DROP
+
 #Bloquear ICMP
 iptables -t mangle -A PREROUTING -p icmp -j DROP
 # Limite de conexiones a 80
@@ -62,6 +63,10 @@ iptables -A SYN_DOS -j DROP
 iptables -A OUTPUT -p udp -m state --state NEW -j ACCEPT
 iptables -A OUTPUT -p udp -m limit --limit 100/s -j ACCEPT
 iptables -A OUTPUT -p udp -j DROP
+
+# Vulnerabilidad mDNS
+iptables -A INPUT -p udp -dport 5353 -d 192.168.111.109 -j DROP
+    
 
 # Proteger escaneo de puertos
 #Bloqueo de la ip del ataque 24h
@@ -103,7 +108,7 @@ iptables -t nat -A POSTROUTING -p tcp -d 192.168.111.109 --dport 80 -j SNAT --to
 iptables -A FORWARD -p udp -d 192.168.111.100 --dport 5060 -j ACCEPT
 
 #Habilitar servicio web 
-iptables -A FORWARD -p tcp -d 192.168.111.103 --dport 8180 -j ACCEPT
+iptables -A FORWARD -p tcp -d 192.168.111.109 --dport 8180 -j ACCEPT
 
 # Habilitar la interfaz loopback para algunos servicios internos
 iptables -A INPUT -i lo -j ACCEPT
@@ -131,7 +136,7 @@ iptables -A INPUT -p tcp --dport 443 -m state --state NEW,ESTABLISHED -j ACCEPT
 iptables -A OUTPUT -p tcp --sport 443 -m state --state ESTABLISHED -j ACCEPT
 
 #Habilitar FTP
-iptables -A INPUT -p tcp --dport 20 -s 192.168.111.109 -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -p tcp --dport 20 -d 192.168.111.109 -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A OUTPUT -p tcp --sport 20 -m state --state ESTABLISHED -j ACCEPT
 
 # guardar
