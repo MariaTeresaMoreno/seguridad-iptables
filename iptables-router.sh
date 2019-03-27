@@ -45,7 +45,6 @@ iptables -t nat -A POSTROUTING -s 192.168.112.0/24 -j MASQUERADE
 iptables -t nat -A PREROUTING -p tcp -d 10.0.2.15 --dport 80 -j DNAT --to-dest 192.168.111.109 
 iptables -t nat -A POSTROUTING -p tcp -d 192.168.111.109 --dport 80 -j SNAT --to-source 10.0.2.15
 
-
 # Permitir acceso ssh para configuración remota
 iptables -A INPUT -p tcp -s 192.168.110.0/24 --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
 iptables -A OUTPUT -p tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT
