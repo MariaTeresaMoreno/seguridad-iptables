@@ -2,14 +2,12 @@
 # Primero limpiamos cualquier regla haciendo un flush
 # tambien reseteamos contadores (-Z) y las Chain personalizadas
 # que se hayan creado (-X)
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -P OUTPUT ACCEPT
 iptables -F 
 iptables -X 
 iptables -Z 
-
-#Establecimiento de la política por defecto
-iptables -A INPUT -j DROP  #trafico entrante rechazado
-iptables -A FORDWARD -j ACCEPT
-iptables -A OUTPUT -j ACCEPT
 
 # Habilitar la interfaz loopback para algunos servicios internos
 iptables -A INPUT -i lo -j ACCEPT
@@ -17,9 +15,9 @@ iptables -A OUTPUT -o lo -j ACCEPT
 
 # Habilitar resolución dns (tcp/udp)
 iptables -A INPUT -p udp --dport 53 -j ACCEPT
-iptables -A OUTPUT -p udp --sport 53 -j ACCEPT
+iptables -A INPUT -p udp --sport 53 -j ACCEPT
 iptables -A INPUT -p tcp --dport 53 -j ACCEPT
-iptables -A OUTPUT -p tcp --sport 53 -j ACCEPT
+iptables -A INPUT -p tcp --sport 53 -j ACCEPT
 
 # Habilitar conexión web
 iptables -A INPUT -p tcp --dport 80 -m state --state NEW,ESTABLISHED -j ACCEPT
@@ -31,7 +29,7 @@ iptables -A OUTPUT -p tcp --sport 443 -m state --state ESTABLISHED -j ACCEPT
 
 #Habilitar tráfico VoIP
 iptables -A INPUT -p udp --dport 5060 -m state --state ESTABLISHED,RELATED -j ACCEPT
-iptables -A INPUT -p tcp --dport 5060 -m state --state ESTABLISHED -j ACCEPT
+iptables -A INPUT -p tcp --dport 5060 -m state --state ESTABLISHED,RELATED -j ACCEPT
 
 # RTP - the media stream
 # (related to the port range in /etc/asterisk/rtp.conf) 
@@ -39,10 +37,7 @@ iptables -A INPUT -p tcp --dport 5060 -m state --state ESTABLISHED -j ACCEPT
 
 # Habilitar SNMP
 iptables -A INPUT -p udp --dport 161 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -p tcp --sport 161 -m state --state ESTABLISHED -j ACCEPT
-
-# reglas syslog #
-iptables -A INPUT -p udp -m udp -dport 514 -j ACCEPT
+iptables -A OUTPUT -p udp --sport 161 -m state --state ESTABLISHED -j ACCEPT
 
 # Rechazar todo el tráfico udp que no cumpla la regla anterior
 iptables A INPUT -p udp -j REJECT
@@ -85,6 +80,11 @@ iptables -A SYN_DOS -j DROP
 
 # Rechazar tráfico tcp que no cumpla las condiciones anteriores
 iptables -A INPUT -p tcp --syn -j REJECT
+
+#Establecimiento de la política por defecto
+iptables -A INPUT -j DROP  #trafico entrante rechazado
+iptables -A FORDWARD -j ACCEPT
+iptables -A OUTPUT -j ACCEPT
 
 # Guardar las reglas
 iptables-save

@@ -2,14 +2,14 @@
 # Primero limpiamos cualquier regla haciendo un flush
 # tambien reseteamos contadores (-Z) y las Chain personalizadas
 # que se hayan creado (-X)
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -t nat -F
+iptables -t mangle -F
 iptables -F 
 iptables -X 
 iptables -Z 
-
-#Establecimiento de la política por defecto
-iptables -A INPUT -j DROP 
-iptables -A FORDWARD -j DROP
-iptables -A OUTPUT -j ACCEPT
 
 # Configurar como un enrutador, habilitando el reenvío de paquetes (forwarding)
 echo "1" > /proc/sys/net/ipv4/ip_forward
@@ -51,7 +51,7 @@ iptables -A INPUT -p tcp -m conntrack --ctstate NEW -j DROP
 iptables -A INPUT -p tcp -m tcp --tcp-flags RST RST -m limit --limit 2/second --limit-burst 2 -j ACCEPT
 
 # Poner limite a PING para evitar DDoS
-iptables -A INPUT -p icmp -j --icmp-type echo-request -m limit --limit 5/s ACCEPT
+iptables -A INPUT -p icmp --icmp-type echo-request -m limit --limit 5/s -j ACCEPT
 
 # Prevención contra SYN Dos
 iptables -N SYN_DOS
@@ -138,6 +138,11 @@ iptables -A OUTPUT -p tcp --sport 443 -m state --state ESTABLISHED -j ACCEPT
 #Habilitar FTP
 iptables -A INPUT -p tcp --dport 20 -d 192.168.111.109 -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A OUTPUT -p tcp --sport 20 -m state --state ESTABLISHED -j ACCEPT
+
+#Establecimiento de la política por defecto
+iptables -A INPUT -j DROP 
+iptables -A FORDWARD -j DROP
+iptables -A OUTPUT -j ACCEPT
 
 # guardar
 iptables-save 
