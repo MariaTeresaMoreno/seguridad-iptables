@@ -22,7 +22,7 @@ iptables -A INPUT -i lo -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
 
 # Vulnerabilidad mDNS
-iptables -A FORWARD -p udp -dport 5353 -d 192.168.111.109 -j DROP   
+iptables -A FORWARD -p udp --dport 5353 -d 192.168.111.109 -j DROP   
 
 # Habilitar el reenvio de paquetes a las tres subredes
 iptables -A FORWARD -s 192.168.111.0/24 -j ACCEPT
@@ -57,8 +57,8 @@ iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT
 iptables -A INPUT -p tcp --sport 53 -j ACCEPT
 
 # Habilitar conexión web
-iptables -A INPUT -p tcp --dports 80,443 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -p tcp --sports 80,443 -m state --state ESTABLISHED -j ACCEPT
+iptables -A INPUT -p tcp -m multiport --dports 80,443 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp -m multiport --sports 80,443 -m state --state ESTABLISHED -j ACCEPT
 
 #Habilitar FTP
 iptables -A INPUT -p tcp --dport 20 -d 192.168.111.109 -m state --state ESTABLISHED,RELATED -j ACCEPT
