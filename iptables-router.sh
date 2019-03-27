@@ -95,7 +95,7 @@ iptables -A INPUT -p tcp -m connlimit --connlimit-above 80 -j REJECT --reject-wi
 
 #Limitar conexiones tcp por min a 20 conexiones
 iptables -A INPUT -p tcp -m conntrack --ctstate NEW -m limit --limit 60/s --limit-burst 20 -j ACCEPT
-iptables -A INPUT -p tcp -m conntrack --cstate NEW -j DROP
+iptables -A INPUT -p tcp -m conntrack --ctstate NEW -j DROP
 
 # Inundación paquetes RST, rechazo de smurf attack.
 
