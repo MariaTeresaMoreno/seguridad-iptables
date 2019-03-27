@@ -37,9 +37,9 @@ i​ptables -t mangle -A PREROUTING -s 192.168.111.0/24 -d 192.168.112.0/24 -j D
 iptables -t mangle -A PREROUTING -s 192.168.112.0/24 -d 192.168.111.0/24 -j DROP
 
 #Activa el NAT para todas las organizaciones
-iptables -t nat -A POSTROUTING -s 192.168.110.0/24 -j MASQUERADE
-iptables -t nat -A POSTROUTING -s 192.168.111.0/24 -j MASQUERADE
-iptables -t nat -A POSTROUTING -s 192.168.112.0/24 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 192.168.110.0/24 -o eth0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 192.168.111.0/24 -o eth0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 192.168.112.0/24 -o eth0 -j MASQUERADE
 
 # Redireccionar solicitudes web entrantes al servidor web en 192.168.111.109
 iptables -t nat -A PREROUTING -p tcp -d 10.0.2.15 --dport 80 -j DNAT --to-dest 192.168.111.109 
