@@ -120,4 +120,4 @@ iptables -A FORDWARD -j DROP
 iptables -A OUTPUT -j ACCEPT
 
 # guardar
-iptables-save 
+iptables-save > mi_cortafuegos
